@@ -133,6 +133,7 @@ def is_in_polygon(poly, p):
         elif prod * sign < 0:
             return False
     return True
+
 def find_poly_intersection(poly, l1, l2):
     """
     Check if the line defined by l1, l2 passes inside
@@ -145,6 +146,7 @@ def find_poly_intersection(poly, l1, l2):
         return s
     else:
         return None
+        
 def find_box_line_intersection(c, s, l1, l2):
     """
     Find points of intersection of a cube located at c
@@ -227,6 +229,7 @@ def find_voxels(vertices):
             seg_len.append(0)
             segments.append([])
     return voxels, segments, seg_len
+
 def get_next_voxel(prev, point, size):
     size /= 2
     x_offset = (point[0] - prev[0]) / size
