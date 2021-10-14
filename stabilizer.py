@@ -137,5 +137,15 @@ class Stabilizer:
 
         return ret_val
 
+    def stabilize(self):
+        """
+        The main method for the stability checking/enforcing algorithm.
+        """
+
+        #TODO
+
+        pass
+
+
 
 stab = Stabilizer([(0, 0, 0), (1, 0, 0), (0, 0, 1), (0, 0, 2)], 1)
