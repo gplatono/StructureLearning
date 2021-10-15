@@ -146,6 +146,39 @@ class Stabilizer:
 
         pass
 
+    def VPMC(self, blocks):
+        return numpy.average(blocks, axis=0)[:2]
+
+    def is_level_neighbour(self, block, neighbour):
+        # if block and neighbour are on same axis
+        if(numpy.absolute(block[2] - neighbour[2]) < 0.1 * self.block_size):
+            # if block and neighbour are within 90% to 110% of block_size of 
+            # each other in the x (or y axis), we consider it a neighbour
+            if (numpy.absolute(block[0] - neighbour[0]) > 0.9 * self.block_size
+            and numpy.absolute(block[0] - neighbour[0]) < 1.1 * self.block_size) or 
+            (numpy.absolute(block[1] - neighbour[1]) > 0.9 * self.block_size 
+            and numpy.absolute(block[1] - neighbour[1]) < 1.1 * self.block_size):
+                return True
+            # elif (numpy.absolute(block[1] - neighbour[1]) > 0.9 * self.block_size
+            # and numpy.absolute(block[1] - neighbour[1]) < 1.1 * self.block_size):
+            #     return True
+        return False
+    
+    # def supportees(self, block):
+    # """
+    # Finds all the supportees of the block.
+    # """
+
+    # #If A is a supportee of B, then B is a supporter of A
+    # ret_val = []
+    # for bl in self.block_locations:
+    #     if block in self.supporters(bl):
+    #         ret_val.append(bl)
+    #     else if is_neighbour(block, bl):
+    #         ret_val.append(bl)
+
+    # return ret_val
+
 
 
 stab = Stabilizer([(0, 0, 0), (1, 0, 0), (0, 0, 1), (0, 0, 2)], 1)
