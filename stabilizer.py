@@ -142,7 +142,15 @@ class Stabilizer:
         The main method for the stability checking/enforcing algorithm.
         """
 
-        #TODO
+        for obj in objects:
+		Z = [obj]
+		supporters = supporters(objects, obj)
+		supportees = supportees(objects, obj)
+		X = obj.union(supporters, supportees)
+
+		for all sup in supportees:
+			if all supporters in X then:
+				Z = Z.union(supporters)
 
         pass
 
