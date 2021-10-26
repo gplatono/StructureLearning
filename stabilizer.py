@@ -156,16 +156,15 @@ class Stabilizer:
     def VPMC(self, blocks):
         return numpy.average(blocks, axis=0)[:2]
 
-    def is_level_neighbour(self, block, neighbour):
+    def is_support_neighbour(self, block, neighbour):
         # if block and neighbour are on same axis
-        on_same_axis = numpy.absolute(block[2] - neighbour[2]) < 0.1 * self.block_size
-        poly = [[blocks[0] + block_size/2, blocks[1] + block_size/2, blocks[2] - block_size/2],
-        [blocks[0] - block_size/2, blocks[1] + block_size/2, blocks[2] - block_size/2],
-        [blocks[0] + block_size/2, blocks[1] - block_size/2, blocks[2] - block_size/2],
-        [blocks[0] - block_size/2, blocks[1] - block_size/2, blocks[2] - block_size/2]]
+        on_same_height = numpy.absolute(block[2] - neighbour[2]) < 0.1 * self.block_size
+        p = self.support_area(block)
+        z = block[2] - block_size/2
+        poly = [[p[0], p[2], z],[p[0], p[3], z],[p[1], p[3], z],[p[1], p[2], z]]
         block_supported = is_in_polygon(poly, VPMC(block))
 
-        if block_supported and on_same_axis:
+        if not block_supported and on_same_height:
             # if block and neighbour are within 90% to 110% of block_size of
             # each other in the x (or y axis), we consider it a neighbour
             if (numpy.absolute(block[0] - neighbour[0]) > 0.9 * self.block_size
@@ -177,6 +176,7 @@ class Stabilizer:
             # and numpy.absolute(block[1] - neighbour[1]) < 1.1 * self.block_size):
             #     return True
         return False
+
 
     # def supportees(self, block):
     # """
