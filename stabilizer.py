@@ -1,4 +1,5 @@
 import numpy as np
+from geometry_utils import is_in_polygon(poly, p)
 class Stabilizer:
     def __init__(self, block_locations, size):
         self.block_locations = block_locations
@@ -22,7 +23,7 @@ class Stabilizer:
                 dist = np.linalg.norm(np.array(block) - np.array(bl))
                 if bl not in self.distance_matrix:
                     self.distance_matrix[bl] = {}
-                
+
                 self.distance_matrix[block][bl] = dist
                 self.distance_matrix[bl][block] = dist
 
@@ -34,14 +35,14 @@ class Stabilizer:
             self.neighbors[block] = [self.block_locations[item[0]] for item in self.distances[block] if item[1] <= 1.5 * size]
 
         #For testing/debugging
-        #sa = self.support_area(self.block_locations[0])        
+        #sa = self.support_area(self.block_locations[0])
         #print (sa)
-        #print(self.direct_supporters(self.block_locations[0]), self.supporters(self.block_locations[0]), self.supportees(self.block_locations[-1]))        
+        #print(self.direct_supporters(self.block_locations[0]), self.supporters(self.block_locations[0]), self.supportees(self.block_locations[-1]))
 
     def support_area(self, block):
         """
         Computes rectangular support area for a given block.
-        The support area is the minimal rectangle that encircles all direct supporters.        
+        The support area is the minimal rectangle that encircles all direct supporters.
         """
         direct_supporters = self.direct_supporters(block)
         #print (direct_supporters)
@@ -55,20 +56,19 @@ class Stabilizer:
             y_min = min(y_min, bl[1] - self.block_size/2)
             y_max = max(y_max, bl[1] + self.block_size/2)
 
-        return [x_min, x_max, y_min, y_max]        
+        return [x_min, x_max, y_min, y_max]
 
     def check_shadow_overlap(self, bl1, bl2):
         """
         Check whether block bl2 is in the shadow of the block bl1, i.e., overlaps it bl1's projection onto
         the xy-plane.
-
         Returns a boolean value reflecting whether the overlap occurs.
         """
 
         #If bl2 is higher or at the same height as bl1, it cannot overlap with its shadow
         if bl2[2] >= bl1[2]:
             return False
-        
+
         x_overlap = False
         y_overlap = False
         #Checks if there is an overlap along the x-axis
@@ -87,7 +87,6 @@ class Stabilizer:
     def compute_shadow_overlap(self, block, candidates):
         """
         Given a list of candidate blocks, find all candidates that overlap the shadow of the given block.
-
         Returns the sublist of candidates that do overlap.
         """
 
@@ -121,7 +120,7 @@ class Stabilizer:
             supp = queue.pop(0)
             supporters.append(supp)
             queue += self.direct_supporters(supp)
-        
+
         return supporters
 
     def supportees(self, block):
@@ -159,19 +158,26 @@ class Stabilizer:
 
     def is_level_neighbour(self, block, neighbour):
         # if block and neighbour are on same axis
-        if(numpy.absolute(block[2] - neighbour[2]) < 0.1 * self.block_size):
-            # if block and neighbour are within 90% to 110% of block_size of 
+        on_same_axis = numpy.absolute(block[2] - neighbour[2]) < 0.1 * self.block_size
+        poly = [[blocks[0] + block_size/2, blocks[1] + block_size/2, blocks[2] - block_size/2],
+        [blocks[0] - block_size/2, blocks[1] + block_size/2, blocks[2] - block_size/2],
+        [blocks[0] + block_size/2, blocks[1] - block_size/2, blocks[2] - block_size/2],
+        [blocks[0] - block_size/2, blocks[1] - block_size/2, blocks[2] - block_size/2]]
+        block_supported = is_in_polygon(poly, VPMC(block))
+
+        if block_supported and on_same_axis:
+            # if block and neighbour are within 90% to 110% of block_size of
             # each other in the x (or y axis), we consider it a neighbour
             if (numpy.absolute(block[0] - neighbour[0]) > 0.9 * self.block_size
-            and numpy.absolute(block[0] - neighbour[0]) < 1.1 * self.block_size) or 
-            (numpy.absolute(block[1] - neighbour[1]) > 0.9 * self.block_size 
+            and numpy.absolute(block[0] - neighbour[0]) < 1.1 * self.block_size) or
+            (numpy.absolute(block[1] - neighbour[1]) > 0.9 * self.block_size
             and numpy.absolute(block[1] - neighbour[1]) < 1.1 * self.block_size):
                 return True
             # elif (numpy.absolute(block[1] - neighbour[1]) > 0.9 * self.block_size
             # and numpy.absolute(block[1] - neighbour[1]) < 1.1 * self.block_size):
             #     return True
         return False
-    
+
     # def supportees(self, block):
     # """
     # Finds all the supportees of the block.
