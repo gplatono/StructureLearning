@@ -1,5 +1,6 @@
 import numpy as np
-from geometry_utils import is_in_polygon(poly, p)
+from geometry_utils import is_in_polygon
+
 class Stabilizer:
     def __init__(self, block_locations, size):
         self.block_locations = block_locations
@@ -57,6 +58,12 @@ class Stabilizer:
             y_max = max(y_max, bl[1] + self.block_size/2)
 
         return [x_min, x_max, y_min, y_max]
+
+
+    def support_poly(self, block):
+    	sup_area = self.support_area(block):
+    	return [[sup_area[0], sup_area[2], block[2]], [sup_area[0], sup_area[3], block[2]]
+    			[sup_area[1], sup_area[3], block[2]], [sup_area[1], sup_area[2], block[2]]]
 
     def check_shadow_overlap(self, bl1, bl2):
         """
@@ -136,33 +143,50 @@ class Stabilizer:
 
         return ret_val
 
-    def stabilize(self):
+    def stabilize(self, blocks):
         """
         The main method for the stability checking/enforcing algorithm.
         """
 
-        for obj in objects:
-		Z = [obj]
-		supporters = supporters(objects, obj)
-		supportees = supportees(objects, obj)
-		X = obj.union(supporters, supportees)
+        for bl in blocks:
+			Z = {bl}
+			supporters = self.supporters(blocks, bl)
+			supportees = self.supportees(blocks, bl)
+			X = {bl}.union(supporters, supportees)
 
-		for all sup in supportees:
-			if all supporters in X then:
-				Z = Z.union(supporters)
+			for s in supportees:
+				sup_set = self.supporters(s)				
+				if sup_set.issubset(X):
+					Z = Z.union(s)
+
+			if not self.is_VPMC_in_sup(self.VPMC(Z), bl):
+				p = closest...
+
+				
+
+
+
+
 
         pass
 
     def VPMC(self, blocks):
         return numpy.average(blocks, axis=0)[:2]
 
-    def is_support_neighbour(self, block, neighbour):
+    def is_VPMC_in_sup(self, VMPC, block):
+    	poly = self.support_poly(block)
+    	return is_in_polygon(poly, VPMC)
+
+    def is_level_neighbour(self, block, neighbour):
         # if block and neighbour are on same axis
         on_same_height = numpy.absolute(block[2] - neighbour[2]) < 0.1 * self.block_size
-        p = self.support_area(block)
-        z = block[2] - block_size/2
-        poly = [[p[0], p[2], z],[p[0], p[3], z],[p[1], p[3], z],[p[1], p[2], z]]
-        block_supported = is_in_polygon(poly, VPMC(block))
+        poly = [[blocks[0] + block_size/2, blocks[1] + block_size/2, blocks[2] - block_size/2],
+        [blocks[0] - block_size/2, blocks[1] + block_size/2, blocks[2] - block_size/2],
+        [blocks[0] + block_size/2, blocks[1] - block_size/2, blocks[2] - block_size/2],
+        [blocks[0] - block_size/2, blocks[1] - block_size/2, blocks[2] - block_size/2]]
+        supp = self.support_area(block)
+        
+        block_supported = is_in_polygon(poly, self.VPMC(block))
 
         if not block_supported and on_same_height:
             # if block and neighbour are within 90% to 110% of block_size of
@@ -176,7 +200,6 @@ class Stabilizer:
             # and numpy.absolute(block[1] - neighbour[1]) < 1.1 * self.block_size):
             #     return True
         return False
-
 
     # def supportees(self, block):
     # """
